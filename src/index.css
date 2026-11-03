@@ -1,0 +1,408 @@
+@import "tailwindcss";
+
+:root {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  --gold: #c9a04b;
+  --gold-light: #e4c47a;
+  --black: #111111;
+  --cream: #f3eee6;
+  --white: #ffffff;
+  --text: #24221f;
+  --muted: #777168;
+  --border: #e7dfd3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--cream);
+  color: var(--text);
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+#root {
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--black);
+}
+
+/* Header and footer */
+
+header,
+footer {
+  background: var(--black) !important;
+  color: var(--white) !important;
+  border-color: #292929 !important;
+}
+
+header a,
+footer a {
+  color: #f4f0e8;
+}
+
+header a:hover,
+footer a:hover {
+  color: var(--gold-light) !important;
+}
+
+header .text-blue-600,
+header a.text-blue-600 {
+  color: var(--gold) !important;
+}
+
+/* Main page */
+
+main {
+  background: var(--cream);
+  color: var(--text);
+}
+
+.bg-gray-50,
+.bg-slate-50 {
+  background-color: var(--cream) !important;
+}
+
+.bg-white {
+  background-color: var(--white) !important;
+}
+
+.text-gray-900,
+.text-gray-800,
+.text-gray-700,
+.text-slate-900,
+.text-slate-800,
+.text-slate-700 {
+  color: var(--text) !important;
+}
+
+.text-gray-600,
+.text-gray-500,
+.text-slate-600,
+.text-slate-500 {
+  color: var(--muted) !important;
+}
+
+.border-gray-100,
+.border-gray-200,
+.border-gray-300,
+.border-slate-200 {
+  border-color: var(--border) !important;
+}
+
+/* Gold buttons and links */
+
+.bg-blue-600,
+.bg-blue-700,
+.bg-indigo-600,
+.bg-indigo-700 {
+  background-color: var(--gold) !important;
+  color: var(--black) !important;
+}
+
+.bg-blue-600:hover,
+.bg-blue-700:hover,
+.bg-indigo-600:hover,
+.bg-indigo-700:hover {
+  background-color: var(--gold-light) !important;
+  color: var(--black) !important;
+}
+
+.text-blue-600,
+.text-blue-700,
+.text-indigo-600,
+.text-indigo-700 {
+  color: #9a7025 !important;
+}
+
+/* Hero banner */
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e6d8c2;
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 80% 20%, #fffaf1 0%, transparent 48%),
+    linear-gradient(115deg, #e8ddcd 0%, #f8f3eb 60%, #d8c5a9 100%);
+  color: var(--text);
+}
+
+.home-hero h1 {
+  color: #181715 !important;
+}
+
+.home-hero p {
+  color: #62594d;
+}
+
+/* Product cards */
+
+.product-card,
+article:has(img) {
+  border-color: var(--border);
+}
+
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 20px;
+}
+
+.shadow,
+.shadow-sm,
+.shadow-md,
+.shadow-lg {
+  box-shadow: 0 8px 24px rgb(53 39 19 / 6%);
+}
+
+/* Form controls */
+
+input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid #d9d0c3;
+  border-radius: 10px;
+  background: #fff;
+  color: #24221f;
+  padding: 12px 14px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #928a7e;
+  opacity: 1;
+}
+
+select {
+  color-scheme: light;
+  cursor: pointer;
+}
+
+select option,
+select optgroup {
+  background: #fff;
+  color: #24221f;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--gold);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgb(201 160 75 / 18%);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  accent-color: var(--gold);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+th {
+  color: #8b6829;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  header > div {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
+  header nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+  }
+
+  main {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  header nav {
+    gap: 10px 12px;
+  }
+
+  header nav a,
+  header nav button {
+    font-size: 12px;
+  }
+
+  .home-hero {
+    border-radius: 16px;
+  }
+}
+/* ========================================
+   PREMIUM SEARCH & FILTER PANEL
+======================================== */
+
+.filter-panel {
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e4d8c5;
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgb(58 42 20 / 6%);
+}
+
+.filter-panel label {
+  display: block;
+  margin-bottom: 12px;
+  color: #29251f;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.filter-panel input,
+.filter-panel select {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 42px 12px 15px;
+  border: 1px solid #d8cbb8;
+  border-radius: 10px;
+  background-color: #fffdf9;
+  color: #29251f;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 2%);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-panel input::placeholder {
+  color: #918779;
+}
+
+.filter-panel input:hover,
+.filter-panel select:hover {
+  border-color: #c9a04b;
+  background-color: #ffffff;
+}
+
+.filter-panel input:focus,
+.filter-panel select:focus {
+  outline: none;
+  border-color: #b78a32;
+  box-shadow: 0 0 0 3px rgb(201 160 75 / 17%);
+}
+
+.filter-panel select {
+  cursor: pointer;
+  color-scheme: light;
+}
+
+.filter-panel select option {
+  padding: 12px;
+  background: #ffffff;
+  color: #29251f;
+  font-size: 14px;
+}
+
+.filter-panel select option:checked {
+  background: #f0e4cd;
+  color: #29251f;
+}
+
+@media (max-width: 640px) {
+  .filter-panel {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .filter-panel input,
+  .filter-panel select {
+    min-height: 48px;
+  }
+}
