@@ -141,7 +141,7 @@ function Home() {
     fetchProducts()
 
     return () => controller.abort()
-    }, [
+  }, [
     categoriesLoading,
     selectedCategory,
     search,
@@ -150,6 +150,7 @@ function Home() {
     skip,
     retryCount,
   ])
+
   function handleCategoryChange(value: string) {
     setSelectedCategory(value)
     setSearch('')
@@ -192,26 +193,28 @@ function Home() {
     selectedCategoryIndex >= 0 ? selectedCategoryIndex + 1 : 0
 
   return (
-    <main className="min-h-screen bg-[#F3EEE6]">
-      <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
-        <section className="home-hero grid min-h-[300px] items-center gap-8 px-6 py-10 sm:px-10 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:px-16">
+    <main className="min-h-screen overflow-x-hidden bg-[#F3EEE6]">
+      <div className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-6 sm:py-10 lg:px-8">
+
+        {/* Hero section */}
+        <section className="home-hero grid min-h-[260px] grid-cols-1 items-center gap-6 px-5 py-8 sm:min-h-[300px] sm:gap-8 sm:px-10 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:px-16">
           <div className="relative z-10">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.25em] text-[#956D27]">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#956D27] sm:mb-4 sm:text-xs sm:tracking-[0.25em]">
               Premium quality · Everyday essentials
             </p>
 
-            <h1 className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               Discover the Best Products for You
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-7 text-[#62594D] sm:text-lg">
+            <p className="mt-4 max-w-xl text-sm leading-6 text-[#62594D] sm:mt-5 sm:text-lg sm:leading-7">
               Explore quality products, discover new favorites and find
               everything you need in one place.
             </p>
 
             <a
               href="#products"
-              className="mt-8 inline-flex items-center gap-3 rounded-lg bg-[#C9A04B] px-6 py-3.5 font-semibold text-[#17130A] shadow-sm transition hover:bg-[#E4C47A]"
+              className="mt-6 inline-flex items-center gap-3 rounded-lg bg-[#C9A04B] px-5 py-3 text-sm font-semibold text-[#17130A] shadow-sm transition hover:bg-[#E4C47A] sm:mt-8 sm:px-6 sm:py-3.5 sm:text-base"
             >
               Explore products
               <span aria-hidden="true">→</span>
@@ -232,18 +235,21 @@ function Home() {
           </div>
         </section>
 
-        <section id="products" className="scroll-mt-8 py-12 sm:py-16">
-          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+        {/* Products section */}
+        <section id="products" className="scroll-mt-6 py-9 sm:scroll-mt-8 sm:py-16">
+
+          {/* Section heading */}
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3 sm:mb-7 sm:gap-4">
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#9A7025]">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#9A7025] sm:text-xs">
                 The collection
               </p>
 
-              <h2 className="text-3xl font-semibold tracking-tight text-[#24221F] sm:text-4xl">
+              <h2 className="text-2xl font-semibold tracking-tight text-[#24221F] sm:text-4xl">
                 Our Products
               </h2>
 
-              <p className="mt-2 text-sm text-[#777168]">
+              <p className="mt-2 text-xs text-[#777168] sm:text-sm">
                 {search.trim()
                   ? `Search results for "${search.trim()}"`
                   : activeCategory
@@ -253,18 +259,19 @@ function Home() {
             </div>
 
             {!loading && !error && (
-              <span className="rounded-full border border-[#E0D5C5] bg-white px-4 py-2 text-sm text-[#62594D]">
+              <span className="shrink-0 rounded-full border border-[#E0D5C5] bg-white px-3 py-2 text-xs text-[#62594D] sm:px-4 sm:text-sm">
                 {total} products
               </span>
             )}
           </div>
 
+          {/* Search and filters */}
           <div className="filter-panel">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-              <div>
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-3">
+              <div className="min-w-0">
                 <label
                   htmlFor="product-search"
-                  className="mb-2 block text-base font-bold text-[#38332B]"
+                  className="mb-2 block text-sm font-bold text-[#38332B] sm:text-base"
                 >
                   Search products
                 </label>
@@ -275,14 +282,14 @@ function Home() {
                   value={search}
                   onChange={(event) => handleSearchChange(event.target.value)}
                   placeholder="Search by product name..."
-                  className="w-full rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
+                  className="w-full min-w-0 rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
                 />
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label
                   htmlFor="product-category"
-                  className="mb-2 block text-base font-bold text-[#38332B]"
+                  className="mb-2 block text-sm font-bold text-[#38332B] sm:text-base"
                 >
                   Category
                 </label>
@@ -293,7 +300,7 @@ function Home() {
                   onChange={(event) =>
                     handleCategoryChange(event.target.value)
                   }
-                  className="w-full rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
+                  className="w-full min-w-0 rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
                 >
                   {categories.map((category) => (
                     <option key={category.slug} value={category.slug}>
@@ -303,10 +310,10 @@ function Home() {
                 </select>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label
                   htmlFor="product-sort"
-                  className="mb-2 block text-base font-bold text-[#38332B]"
+                  className="mb-2 block text-sm font-bold text-[#38332B] sm:text-base"
                 >
                   Sort by
                 </label>
@@ -315,7 +322,7 @@ function Home() {
                   id="product-sort"
                   value={sortOrder}
                   onChange={(event) => handleSortChange(event.target.value)}
-                  className="w-full rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
+                  className="w-full min-w-0 rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
                 >
                   <option value="default">Default order</option>
                   <option value="price-low">Price: low to high</option>
@@ -336,20 +343,21 @@ function Home() {
             )}
           </div>
 
+          {/* Categories */}
           {!search.trim() && categories.length > 0 && (
-            <section className="mt-6 rounded-2xl border border-[#E3D8C6] bg-white/70 p-5 sm:p-6">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <section className="mt-5 rounded-2xl border border-[#E3D8C6] bg-white/70 p-4 sm:mt-6 sm:p-6">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#9A7025]">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#9A7025] sm:text-xs sm:tracking-[0.18em]">
                     Shop by category
                   </p>
 
-                  <h3 className="mt-1 text-lg font-semibold text-[#24221F]">
+                  <h3 className="mt-1 text-base font-semibold text-[#24221F] sm:text-lg">
                     {activeCategory?.name ?? 'Choose a category'}
                   </h3>
                 </div>
 
-                <span className="text-sm text-[#777168]">
+                <span className="text-xs text-[#777168] sm:text-sm">
                   Category {displayedCategoryNumber} of {categories.length}
                 </span>
               </div>
@@ -361,7 +369,7 @@ function Home() {
                     type="button"
                     onClick={() => goToCategory(index)}
                     aria-pressed={selectedCategory === category.slug}
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    className={`max-w-full rounded-full border px-3 py-2 text-xs font-semibold transition sm:px-4 sm:text-sm ${
                       selectedCategory === category.slug
                         ? 'border-[#C9A04B] bg-[#C9A04B] text-black'
                         : 'border-[#D9D0C3] bg-white text-[#38332B] hover:border-[#C9A04B]'
@@ -372,125 +380,137 @@ function Home() {
                 ))}
               </div>
 
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#E9E0D4] pt-4">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-[#E9E0D4] pt-4">
                 <button
                   type="button"
                   disabled={selectedCategoryIndex <= 0}
                   onClick={() => goToCategory(selectedCategoryIndex - 1)}
-                  className="rounded-lg border border-[#D9D0C3] bg-white px-4 py-2 text-sm font-semibold text-[#38332B] hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                 >
-                  ← Previous category
+                  ← Previous
                 </button>
 
-                <span className="text-sm text-[#777168]">
+                <span className="text-xs text-[#777168] sm:text-sm">
                   {displayedCategoryNumber} / {categories.length}
                 </span>
 
                 <button
                   type="button"
-                  disabled={selectedCategoryIndex < 0 || selectedCategoryIndex >= categories.length - 1}
+                  disabled={
+                    selectedCategoryIndex < 0 ||
+                    selectedCategoryIndex >= categories.length - 1
+                  }
                   onClick={() => goToCategory(selectedCategoryIndex + 1)}
-                  className="rounded-lg border border-[#D9D0C3] bg-white px-4 py-2 text-sm font-semibold text-[#38332B] hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                 >
-                  Next category →
+                  Next →
                 </button>
               </div>
             </section>
           )}
 
+          {/* Loading */}
           {loading && (
-            <div className="mt-6 rounded-2xl border border-[#E7DFD3] bg-white px-6 py-16 text-center">
+            <div className="mt-6 rounded-2xl border border-[#E7DFD3] bg-white px-4 py-12 text-center sm:px-6 sm:py-16">
               <div className="mx-auto mb-4 h-9 w-9 animate-spin rounded-full border-4 border-[#E8DDC8] border-t-[#C9A04B]" />
-              <p className="text-[#777168]">Loading products...</p>
+              <p className="text-sm text-[#777168] sm:text-base">
+                Loading products...
+              </p>
             </div>
           )}
 
+          {/* Error */}
           {error && (
-            <div className="mt-6 rounded-xl border border-red-200 bg-white p-6 text-center">
-              <p className="text-red-600">{error}</p>
+            <div className="mt-6 rounded-xl border border-red-200 bg-white p-5 text-center sm:p-6">
+              <p className="text-sm text-red-600 sm:text-base">{error}</p>
 
               <button
                 type="button"
                 onClick={() => setRetryCount((count) => count + 1)}
-                className="mt-4 rounded-lg bg-[#C9A04B] px-5 py-2.5 font-semibold text-black hover:bg-[#E4C47A]"
+                className="mt-4 rounded-lg bg-[#C9A04B] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#E4C47A]"
               >
                 Try again
               </button>
             </div>
           )}
 
+          {/* Product count */}
           {!loading && !error && (
-            <p className="mt-5 text-sm text-[#777168]">
+            <p className="mt-5 text-xs text-[#777168] sm:text-sm">
               Showing {products.length} products · Page {page} of{' '}
               {Math.max(totalPages, 1)}
             </p>
           )}
 
+          {/* Empty state */}
           {!loading && !error && products.length === 0 && (
-            <div className="mt-6 rounded-2xl border border-[#E7DFD3] bg-white px-6 py-16 text-center">
-              <p className="text-lg font-semibold text-[#24221F]">
+            <div className="mt-6 rounded-2xl border border-[#E7DFD3] bg-white px-4 py-12 text-center sm:px-6 sm:py-16">
+              <p className="text-base font-semibold text-[#24221F] sm:text-lg">
                 No products found
               </p>
 
-              <p className="mt-2 text-sm text-[#777168]">
+              <p className="mt-2 text-xs text-[#777168] sm:text-sm">
                 Try another search or change your filters.
               </p>
 
               <button
                 type="button"
                 onClick={clearFilters}
-                className="mt-5 rounded-lg bg-[#C9A04B] px-5 py-3 font-semibold text-black hover:bg-[#E4C47A]"
+                className="mt-5 rounded-lg bg-[#C9A04B] px-5 py-3 text-sm font-semibold text-black hover:bg-[#E4C47A]"
               >
                 Show category products
               </button>
             </div>
           )}
 
+          {/* Product grid */}
           {!loading && !error && products.length > 0 && (
             <>
-              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="mt-5 grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 sm:mt-6 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
+              {/* Pagination */}
               {totalPages > 1 && (
                 <nav
                   aria-label="Product pages"
-                  className="mt-10 flex flex-wrap items-center justify-center gap-2"
+                  className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-10"
                 >
                   <button
                     type="button"
                     disabled={page === 1 || loading}
                     onClick={() => setPage((current) => current - 1)}
-                    className="rounded-lg border border-[#D9D0C3] bg-white px-4 py-2 text-sm font-semibold text-[#38332B] transition hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] transition hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                   >
                     Previous
                   </button>
 
-                  {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                    (pageNumber) => (
-                      <button
-                        key={pageNumber}
-                        type="button"
-                        aria-current={pageNumber === page ? 'page' : undefined}
-                        onClick={() => setPage(pageNumber)}
-                        className={`h-10 min-w-10 rounded-lg border px-3 text-sm font-semibold transition ${
-                          pageNumber === page
-                            ? 'border-[#C9A04B] bg-[#C9A04B] text-black'
-                            : 'border-[#D9D0C3] bg-white text-[#38332B] hover:border-[#C9A04B]'
-                        }`}
-                      >
-                        {pageNumber}
-                      </button>
-                    ),
-                  )}
+                  {Array.from(
+                    { length: totalPages },
+                    (_, index) => index + 1,
+                  ).map((pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      aria-current={pageNumber === page ? 'page' : undefined}
+                      onClick={() => setPage(pageNumber)}
+                      className={`h-9 min-w-9 rounded-lg border px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
+                        pageNumber === page
+                          ? 'border-[#C9A04B] bg-[#C9A04B] text-black'
+                          : 'border-[#D9D0C3] bg-white text-[#38332B] hover:border-[#C9A04B]'
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
 
                   <button
                     type="button"
                     disabled={page >= totalPages || loading}
                     onClick={() => setPage((current) => current + 1)}
-                    className="rounded-lg border border-[#D9D0C3] bg-white px-4 py-2 text-sm font-semibold text-[#38332B] transition hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] transition hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                   >
                     Next
                   </button>
