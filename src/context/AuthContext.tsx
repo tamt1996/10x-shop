@@ -1,9 +1,12 @@
+
 import {
   useState,
   type ReactNode,
 } from 'react'
 
 import { AuthContext } from './AuthContextValue'
+
+const MIN_PASSWORD_LENGTH = 8
 
 export interface AuthUser {
   id: number
@@ -25,7 +28,22 @@ function getStoredUser(): AuthUser | null {
   try {
     const savedUser = localStorage.getItem('shop_user')
 
-    return savedUser ? (JSON.parse(savedUser) as AuthUser) : null
+    if (!savedUser) {
+      return null
+    }
+
+    const parsedUser: unknown = JSON.parse(savedUser)
+
+    if (
+      typeof parsedUser !== 'object' ||
+      parsedUser === null ||
+      !('id' in parsedUser) ||
+      !('username' in parsedUser)
+    ) {
+      return null
+    }
+
+    return parsedUser as AuthUser
   } catch {
     return null
   }
@@ -42,7 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const cleanUsername = username.trim()
     const cleanPassword = password.trim()
 
-    if (!cleanUsername || !cleanPassword) {
+    if (!cleanUsername || cleanPassword.length < MIN_PASSWORD_LENGTH) {
       return false
     }
 
@@ -62,10 +80,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   function logout() {
+    // 1. ვშლით მომხმარებლის ავტორიზაციის მონაცემებს
     localStorage.removeItem('shop_user')
     localStorage.removeItem('shop_access_token')
     localStorage.removeItem('shop_refresh_token')
     localStorage.removeItem('shop_profile')
+
+    // 2. ვშლით კალათის მონაცემებს (რომ გამოსვლის შემდეგ კალათა არ დარჩეს)
+    localStorage.removeItem('cart')
+    localStorage.removeItem('shop_cart')
+    localStorage.removeItem('cartItems')
 
     setUser(null)
   }

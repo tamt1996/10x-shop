@@ -1,6 +1,6 @@
-
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useCart } from '../context/useCart' // 1. დავამატეთ useCart
 
 interface HeaderProps {
   cartCount: number
@@ -9,9 +9,11 @@ interface HeaderProps {
 function Header({ cartCount }: HeaderProps) {
   const navigate = useNavigate()
   const { isLoggedIn, logout } = useAuth()
+  const { clearCart } = useCart() // 2. წამოვიღეთ clearCart ფუნქცია
 
   function handleLogout() {
-    logout()
+    logout() // ინახავს logout-ს AuthContext-ში
+    clearCart() // 3. მყისიერად ასუფთავებს კალათის State-ს 0-მდე
     navigate('/login', { replace: true })
   }
 
@@ -65,15 +67,18 @@ function Header({ cartCount }: HeaderProps) {
             </>
           )}
 
-          <Link
-            to="/cart"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[#C9A04B]/50 px-3 py-2 text-xs text-white transition hover:bg-[#C9A04B] hover:text-black sm:text-sm"
-          >
-            Cart
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#C9A04B] px-1.5 text-xs font-bold text-black">
-              {cartCount}
-            </span>
-          </Link>
+          {/* Cart ღილაკი ჩანს მხოლოდ მაშინ, როცა მომხმარებელი ავტორიზებულია */}
+          {isLoggedIn && (
+            <Link
+              to="/cart"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-[#C9A04B]/50 px-3 py-2 text-xs text-white transition hover:bg-[#C9A04B] hover:text-black sm:text-sm"
+            >
+              Cart
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#C9A04B] px-1.5 text-xs font-bold text-black">
+                {cartCount}
+              </span>
+            </Link>
+          )}
         </nav>
       </div>
     </header>

@@ -1,4 +1,3 @@
-
 import {
   useEffect,
   useState,
@@ -33,6 +32,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   })
 
+  // ყოველთვის, როდესაც items იცვლება, ვანახლებთ localStorage-ს
   useEffect(() => {
     localStorage.setItem('shop_cart', JSON.stringify(items))
   }, [items])
@@ -78,8 +78,10 @@ export function CartProvider({ children }: CartProviderProps) {
     )
   }
 
+  // კალათის სრული გაწმენდა (State + localStorage)
   function clearCart() {
     setItems([])
+    localStorage.removeItem('shop_cart')
   }
 
   const cartCount = items.reduce(

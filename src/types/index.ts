@@ -1,4 +1,3 @@
-
 export interface Product {
   id: number
   title: string
@@ -9,6 +8,8 @@ export interface Product {
   stock: number
   thumbnail: string
   images: string[]
+  discountPercentage?: number
+  brand?: string
 }
 
 export interface ProductsResponse {

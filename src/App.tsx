@@ -22,6 +22,7 @@ import { useCart } from './context/useCart'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './context/useAuth'
 
+// დაცული მარშრუტი - უშვებს მხოლოდ ავტორიზებულ მომხმარებელს
 interface ProtectedRouteProps {
   children: ReactNode
 }
@@ -43,88 +44,109 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
   return <>{children}</>
 }
 
-function AppContent() {
+// საპირისპირო მარშრუტი - თუ უკვე შესულია, /login-ზე აღარ შეუშვას და გადაიყვანოს მთავარზე
+function PublicOnlyRoute({ children }: ProtectedRouteProps) {
+  const { isLoggedIn } = useAuth()
+
+  if (isLoggedIn) {
+    return <Navigate to="/" replace />
+  }
+
+  return <>{children}</>
+}
+
+function MainLayout() {
   const { cartCount } = useCart()
 
   return (
+    <div className="min-h-screen bg-gray-50">
+      <Header cartCount={cartCount} />
+
+      <Routes>
+        {/* საჯარო გვერდები */}
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          }
+        />
+        <Route path="/products/:id" element={<ProductDetails />} />
+
+        {/* დაცული გვერდები (მხოლოდ ავტორიზებულებისთვის) */}
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 გვერდი */}
+        <Route
+          path="*"
+          element={
+            <main className="px-6 py-16 text-center">
+              <h1 className="text-4xl font-bold text-gray-900">
+                Page not found
+              </h1>
+
+              <p className="mt-3 text-gray-600">
+                The page you are looking for does not exist.
+              </p>
+
+              <Link
+                to="/"
+                className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
+              >
+                Go to catalog
+              </Link>
+            </main>
+          }
+        />
+      </Routes>
+    </div>
+  )
+}
+
+export default function App() {
+  return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <Header cartCount={cartCount} />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-
-          <Route path="/login" element={<Login />} />
-
-          <Route
-            path="/products/:id"
-            element={<ProductDetails />}
-          />
-
-          <Route path="/cart" element={<Cart />} />
-
-          <Route
-            path="/checkout"
-            element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="*"
-            element={
-              <main className="px-6 py-16 text-center">
-                <h1 className="text-4xl font-bold text-gray-900">
-                  Page not found
-                </h1>
-
-                <p className="mt-3 text-gray-600">
-                  The page you are looking for does not exist.
-                </p>
-
-                <Link
-                  to="/"
-                  className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
-                >
-                  Go to catalog
-                </Link>
-              </main>
-            }
-          />
-        </Routes>
-      </div>
+      <AuthProvider>
+        <CartProvider>
+          <MainLayout />
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
-
-function App() {
-  return (
-    <AuthProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
-    </AuthProvider>
-  )
-}
-
-export default App

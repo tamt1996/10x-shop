@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import type { Product, ProductsResponse } from '../types'
 import ProductCard from '../components/ProductCard'
 
@@ -19,11 +19,46 @@ function Home() {
   const [loading, setLoading] = useState(true)
   const [categoriesLoading, setCategoriesLoading] = useState(true)
   const [error, setError] = useState('')
+
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [sortOrder, setSortOrder] = useState('default')
   const [page, setPage] = useState(1)
   const [retryCount, setRetryCount] = useState(0)
+
+  // ლოკალური პროდუქტები
+  const [customProducts, setCustomProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('custom_products')
+    return saved ? JSON.parse(saved) : []
+  })
+
+  // წაშლილი პროდუქტების ID-ები
+  const [deletedIds, setDeletedIds] = useState<number[]>(() => {
+    const saved = localStorage.getItem('deleted_product_ids')
+    return saved ? JSON.parse(saved) : []
+  })
+
+  // ახალი პროდუქტის დამატების მოდალი
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [newPrice, setNewPrice] = useState('')
+  const [newCategory, setNewCategory] = useState('')
+  const [newImage, setNewImage] = useState('')
+
+  // LocalStorage-ში შენახვა
+  useEffect(() => {
+    localStorage.setItem(
+      'custom_products',
+      JSON.stringify(customProducts),
+    )
+  }, [customProducts])
+
+  useEffect(() => {
+    localStorage.setItem(
+      'deleted_product_ids',
+      JSON.stringify(deletedIds),
+    )
+  }, [deletedIds])
 
   const skip = (page - 1) * PRODUCTS_PER_PAGE
   const totalPages = Math.ceil(total / PRODUCTS_PER_PAGE)
@@ -36,6 +71,7 @@ function Home() {
     (category) => category.slug === selectedCategory,
   )
 
+  // კატეგორიების წამოღება API-დან
   useEffect(() => {
     const controller = new AbortController()
 
@@ -79,6 +115,7 @@ function Home() {
     return () => controller.abort()
   }, [retryCount])
 
+  // პროდუქტების წამოღება API-დან
   useEffect(() => {
     if (categoriesLoading || (!selectedCategory && !search.trim())) {
       return
@@ -121,8 +158,47 @@ function Home() {
 
         const data: ProductsResponse = await response.json()
 
-        setProducts(data.products)
-        setTotal(data.total)
+        // API პროდუქტების გაფილტვრა
+        const apiFiltered = data.products.filter(
+          (product) => !deletedIds.includes(product.id),
+        )
+
+        // მომხმარებლის დამატებული პროდუქტები
+        const userAddedFiltered = customProducts.filter(
+          (product) =>
+            !deletedIds.includes(product.id) &&
+            (!selectedCategory ||
+              search.trim() ||
+              product.category === selectedCategory) &&
+            (!search.trim() ||
+              product.title
+                .toLowerCase()
+                .includes(search.trim().toLowerCase())),
+        )
+
+        // პროდუქტების გაერთიანება
+        const combinedProducts = [
+          ...userAddedFiltered,
+          ...apiFiltered,
+        ]
+
+        // დალაგება
+        if (sortOrder === 'price-low') {
+          combinedProducts.sort((a, b) => a.price - b.price)
+        } else if (sortOrder === 'price-high') {
+          combinedProducts.sort((a, b) => b.price - a.price)
+        } else if (sortOrder === 'name') {
+          combinedProducts.sort((a, b) =>
+            a.title.localeCompare(b.title),
+          )
+        }
+
+        setProducts(combinedProducts)
+
+        const filteredTotal =
+          data.total + userAddedFiltered.length
+
+        setTotal(filteredTotal)
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
           return
@@ -149,14 +225,85 @@ function Home() {
     page,
     skip,
     retryCount,
+    deletedIds,
+    customProducts,
   ])
 
+  // პროდუქტის წაშლა
+  function handleDeleteProduct(id: number) {
+    setDeletedIds((prev) =>
+      prev.includes(id) ? prev : [...prev, id],
+    )
+
+    setCustomProducts((prev) =>
+      prev.filter((product) => product.id !== id),
+    )
+
+    setProducts((prev) =>
+      prev.filter((product) => product.id !== id),
+    )
+
+    setTotal((prev) => Math.max(0, prev - 1))
+  }
+
+  // ახალი პროდუქტის დამატება
+  function handleAddProductSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault()
+
+    const title = newTitle.trim()
+    const price = Number(newPrice)
+
+    if (
+      !title ||
+      !newCategory ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+      return
+    }
+
+    const image =
+      newImage.trim() || 'https://via.placeholder.com/300'
+
+    const createdProduct: Product = {
+  id: Date.now(),
+  title,
+  price,
+  category: newCategory,
+  thumbnail: image,
+  description: 'Custom added product',
+  discountPercentage: 0,
+  rating: 5,
+  stock: 10,
+  brand: 'Custom',
+  images: [image],
+}
+    setCustomProducts((prev) => [
+      createdProduct,
+      ...prev,
+    ])
+
+    setSelectedCategory(newCategory)
+    setSearch('')
+    setPage(1)
+
+    setNewTitle('')
+    setNewPrice('')
+    setNewCategory('')
+    setNewImage('')
+    setIsModalOpen(false)
+  }
+
+  // კატეგორიის შეცვლა
   function handleCategoryChange(value: string) {
     setSelectedCategory(value)
     setSearch('')
     setPage(1)
   }
 
+  // კატეგორიებს შორის გადასვლა
   function goToCategory(index: number) {
     if (index < 0 || index >= categories.length) return
 
@@ -169,16 +316,19 @@ function Home() {
     })
   }
 
+  // ძიება
   function handleSearchChange(value: string) {
     setSearch(value)
     setPage(1)
   }
 
+  // დალაგება
   function handleSortChange(value: string) {
     setSortOrder(value)
     setPage(1)
   }
 
+  // ფილტრების გასუფთავება
   function clearFilters() {
     setSearch('')
     setSortOrder('default')
@@ -190,7 +340,9 @@ function Home() {
   }
 
   const displayedCategoryNumber =
-    selectedCategoryIndex >= 0 ? selectedCategoryIndex + 1 : 0
+    selectedCategoryIndex >= 0
+      ? selectedCategoryIndex + 1
+      : 0
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#F3EEE6]">
@@ -236,8 +388,10 @@ function Home() {
         </section>
 
         {/* Products section */}
-        <section id="products" className="scroll-mt-6 py-9 sm:scroll-mt-8 sm:py-16">
-
+        <section
+          id="products"
+          className="scroll-mt-6 py-9 sm:scroll-mt-8 sm:py-16"
+        >
           {/* Section heading */}
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3 sm:mb-7 sm:gap-4">
             <div>
@@ -249,20 +403,32 @@ function Home() {
                 Our Products
               </h2>
 
-              <p className="mt-2 text-xs text-[#777168] sm:text-sm">
-                {search.trim()
-                  ? `Search results for "${search.trim()}"`
-                  : activeCategory
-                    ? `${activeCategory.name} collection`
-                    : 'Explore our collections.'}
-              </p>
+            <p className="mt-2 text-xs text-[#777168] sm:text-sm">
+  {search.trim() ? (
+    `Search results for "${search.trim()}"`
+  ) : activeCategory ? (
+    `${activeCategory.name} collection`
+  ) : (
+    'Explore our collections.'
+  )}
+</p>
             </div>
 
-            {!loading && !error && (
-              <span className="shrink-0 rounded-full border border-[#E0D5C5] bg-white px-3 py-2 text-xs text-[#62594D] sm:px-4 sm:text-sm">
-                {total} products
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="rounded-lg bg-[#C9A04B] px-4 py-2 text-xs font-semibold text-black transition hover:bg-[#E4C47A] sm:text-sm"
+              >
+                + Add Product
+              </button>
+
+              {!loading && !error && (
+                <span className="shrink-0 rounded-full border border-[#E0D5C5] bg-white px-3 py-2 text-xs text-[#62594D] sm:px-4 sm:text-sm">
+                  {total} products
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Search and filters */}
@@ -280,7 +446,9 @@ function Home() {
                   id="product-search"
                   type="search"
                   value={search}
-                  onChange={(event) => handleSearchChange(event.target.value)}
+                  onChange={(event) =>
+                    handleSearchChange(event.target.value)
+                  }
                   placeholder="Search by product name..."
                   className="w-full min-w-0 rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
                 />
@@ -303,7 +471,10 @@ function Home() {
                   className="w-full min-w-0 rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
                 >
                   {categories.map((category) => (
-                    <option key={category.slug} value={category.slug}>
+                    <option
+                      key={category.slug}
+                      value={category.slug}
+                    >
                       {category.name}
                     </option>
                   ))}
@@ -321,7 +492,9 @@ function Home() {
                 <select
                   id="product-sort"
                   value={sortOrder}
-                  onChange={(event) => handleSortChange(event.target.value)}
+                  onChange={(event) =>
+                    handleSortChange(event.target.value)
+                  }
                   className="w-full min-w-0 rounded-lg border border-[#D9D0C3] bg-white px-4 py-3 text-sm text-[#24221F] outline-none transition focus:border-[#C9A04B] focus:ring-2 focus:ring-[#C9A04B]/20"
                 >
                   <option value="default">Default order</option>
@@ -368,7 +541,9 @@ function Home() {
                     key={category.slug}
                     type="button"
                     onClick={() => goToCategory(index)}
-                    aria-pressed={selectedCategory === category.slug}
+                    aria-pressed={
+                      selectedCategory === category.slug
+                    }
                     className={`max-w-full rounded-full border px-3 py-2 text-xs font-semibold transition sm:px-4 sm:text-sm ${
                       selectedCategory === category.slug
                         ? 'border-[#C9A04B] bg-[#C9A04B] text-black'
@@ -384,7 +559,9 @@ function Home() {
                 <button
                   type="button"
                   disabled={selectedCategoryIndex <= 0}
-                  onClick={() => goToCategory(selectedCategoryIndex - 1)}
+                  onClick={() =>
+                    goToCategory(selectedCategoryIndex - 1)
+                  }
                   className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                 >
                   ← Previous
@@ -400,7 +577,9 @@ function Home() {
                     selectedCategoryIndex < 0 ||
                     selectedCategoryIndex >= categories.length - 1
                   }
-                  onClick={() => goToCategory(selectedCategoryIndex + 1)}
+                  onClick={() =>
+                    goToCategory(selectedCategoryIndex + 1)
+                  }
                   className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                 >
                   Next →
@@ -422,11 +601,15 @@ function Home() {
           {/* Error */}
           {error && (
             <div className="mt-6 rounded-xl border border-red-200 bg-white p-5 text-center sm:p-6">
-              <p className="text-sm text-red-600 sm:text-base">{error}</p>
+              <p className="text-sm text-red-600 sm:text-base">
+                {error}
+              </p>
 
               <button
                 type="button"
-                onClick={() => setRetryCount((count) => count + 1)}
+                onClick={() =>
+                  setRetryCount((count) => count + 1)
+                }
                 className="mt-4 rounded-lg bg-[#C9A04B] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#E4C47A]"
               >
                 Try again
@@ -468,7 +651,11 @@ function Home() {
             <>
               <div className="mt-5 grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 sm:mt-6 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onDelete={handleDeleteProduct}
+                  />
                 ))}
               </div>
 
@@ -481,7 +668,9 @@ function Home() {
                   <button
                     type="button"
                     disabled={page === 1 || loading}
-                    onClick={() => setPage((current) => current - 1)}
+                    onClick={() =>
+                      setPage((current) => current - 1)
+                    }
                     className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] transition hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                   >
                     Previous
@@ -494,7 +683,9 @@ function Home() {
                     <button
                       key={pageNumber}
                       type="button"
-                      aria-current={pageNumber === page ? 'page' : undefined}
+                      aria-current={
+                        pageNumber === page ? 'page' : undefined
+                      }
                       onClick={() => setPage(pageNumber)}
                       className={`h-9 min-w-9 rounded-lg border px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
                         pageNumber === page
@@ -509,7 +700,9 @@ function Home() {
                   <button
                     type="button"
                     disabled={page >= totalPages || loading}
-                    onClick={() => setPage((current) => current + 1)}
+                    onClick={() =>
+                      setPage((current) => current + 1)
+                    }
                     className="rounded-lg border border-[#D9D0C3] bg-white px-3 py-2 text-xs font-semibold text-[#38332B] transition hover:border-[#C9A04B] disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                   >
                     Next
@@ -520,6 +713,109 @@ function Home() {
           )}
         </section>
       </div>
+
+      {/* Add product modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-[#24221F]">
+              Add New Product
+            </h3>
+
+            <form
+              onSubmit={handleAddProductSubmit}
+              className="mt-4 space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-[#38332B]">
+                  Title
+                </label>
+
+                <input
+                  type="text"
+                  required
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="e.g. Luxury Cream"
+                  className="mt-1 w-full rounded-lg border border-[#D9D0C3] p-2 text-sm outline-none focus:border-[#C9A04B]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#38332B]">
+                  Price ($)
+                </label>
+
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(e.target.value)}
+                  placeholder="e.g. 19.99"
+                  className="mt-1 w-full rounded-lg border border-[#D9D0C3] p-2 text-sm outline-none focus:border-[#C9A04B]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#38332B]">
+                  Category
+                </label>
+
+                <select
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  required
+                  className="mt-1 w-full rounded-lg border border-[#D9D0C3] p-2 text-sm outline-none focus:border-[#C9A04B]"
+                >
+                  <option value="">Select Category</option>
+
+                  {categories.map((category) => (
+                    <option
+                      key={category.slug}
+                      value={category.slug}
+                    >
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#38332B]">
+                  Image URL (Optional)
+                </label>
+
+                <input
+                  type="url"
+                  value={newImage}
+                  onChange={(e) => setNewImage(e.target.value)}
+                  placeholder="https://..."
+                  className="mt-1 w-full rounded-lg border border-[#D9D0C3] p-2 text-sm outline-none focus:border-[#C9A04B]"
+                />
+              </div>
+
+              <div className="mt-6 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="rounded-lg bg-[#C9A04B] px-4 py-2 text-xs font-semibold text-black hover:bg-[#E4C47A]"
+                >
+                  Add Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
